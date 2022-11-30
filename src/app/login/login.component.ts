@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../authentication.service';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -29,11 +30,13 @@ submit(){
 this.submitted = true
   if(this.loginForm.valid){
     console.log(this.loginForm.value)
-    let user = this.authService.login(this.loginForm.value.email, this.loginForm.value.password)
-    if(user){
-      console.log("users",user)
-      this.route.navigate(['/dashboard'])
-    }
-}
+    this.authService.login(this.loginForm.value.email, this.loginForm.value.password).pipe(first())
+    .subscribe(
+        user => {
+            console.log('user',user)
+            this.route.navigate(['/dashboard' , user]);
+        },
+    )}
+
 }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, map, Observable, of } from 'rxjs';
 import { ApiService, User } from './api.service';
-
+import { first } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root',
 })
@@ -13,13 +13,16 @@ export class AuthenticationService {
 
   login(username: string, password: string): Observable<User | null> {
     // your code here
+    let loggedInUser;
     console.log("user", username)
-    let loggedInUser = this.apiService.login(username,password)
-    if(loggedInUser){
-      
-      return loggedInUser
-    }
-  return of(null);
+     this.apiService.login(username,password).pipe(first()).subscribe(
+      user => { 
+      console.log(user)
+      loggedInUser = user
+      this.user$.next(user)
+      return user
+    })
+  return of(loggedInUser);
   }
 
   logout(): void {
